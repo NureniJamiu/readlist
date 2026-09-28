@@ -10,3 +10,8 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# Local specifications
+AGENTS.md
+PRD.md
+STYLE_GUIDE.md

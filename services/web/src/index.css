@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #6D2E46;   /* Deep Wine */
+  --color-accent: #A26769;    /* Dusty Rose */
+  --color-surface: #ECE2D0;   /* Cream */
+  --color-text: #2B1C22;      /* Near-Black Plum */
+  --color-text-secondary: #3A2A30; /* Dark Plum */
+  --color-white: #FFFFFF;
+
+  --font-heading: "Cambria", Georgia, serif;
+  --font-body: "Calibri", Candara, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --radius: 12px;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-white);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+.eyebrow-label {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.wine-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius);
+}
+
+.wine-card-solid {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-radius: var(--radius);
+}
+
+.pill-step {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  border-radius: 9999px;
+  padding: 0.25rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
