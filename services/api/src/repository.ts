@@ -66,9 +66,10 @@ export class BookRepository {
     return row ? mapRowToBook(row) : null;
   }
 
-  create(data: { title: string; author: string; genre: string; status: ReadingStatus }): Book {
+  create(data: { title: string; author: string; genre: string; status?: ReadingStatus }): Book {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
+    const status: ReadingStatus = data.status || 'unread';
 
     const stmt = this.db.prepare(`
       INSERT INTO books (id, title, author, genre, status, created_at, updated_at)
@@ -82,7 +83,7 @@ export class BookRepository {
       title: data.title,
       author: data.author,
       genre: data.genre,
-      status: data.status,
+      status: status,
       createdAt: now,
       updatedAt: now
     };
