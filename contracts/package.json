@@ -1,0 +1,19 @@
+{
+  "name": "@readlist/contracts",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test dist/tests/**/*.test.js",
+    "eval": "tsc && node dist/evals/contracts.eval.js"
+  }
+}
