@@ -1,0 +1,26 @@
+{
+  "name": "@readlist/api",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/src/server.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "start": "node dist/src/server.js",
+    "test": "tsc && node --test dist/tests/**/*.test.js",
+    "eval": "tsc && node dist/evals/api.eval.js"
+  },
+  "dependencies": {
+    "@readlist/contracts": "1.0.0",
+    "better-sqlite3": "^11.8.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0"
+  }
+}
