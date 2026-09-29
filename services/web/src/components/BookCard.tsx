@@ -122,10 +122,13 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onToggleStatus, onDele
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className="text-xs text-plum-secondary/50 hover:text-red-600 font-medium transition-colors px-1"
+              className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-md"
               title="Remove book"
             >
-              Delete
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M2 4h12M5.333 4V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4h9.334z" />
+              </svg>
+              <span className="sr-only">Delete</span>
             </button>
           )}
         </div>
