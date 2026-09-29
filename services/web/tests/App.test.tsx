@@ -110,7 +110,7 @@ describe('App Component Integration & Gate Tests', () => {
     });
 
     // The status toggle buttons have title="Mark as read" for unread books
-    const markReadButtons = screen.getAllByTitle('Mark as read');
+    const markReadButtons = screen.getAllByRole('button', { name: /^mark as read$/i });
     expect(markReadButtons.length).toBeGreaterThan(0);
 
     fireEvent.click(markReadButtons[0]);
