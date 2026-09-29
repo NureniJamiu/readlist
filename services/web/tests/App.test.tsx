@@ -1,0 +1,160 @@
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { App } from '../src/App';
+import { apiClient } from '../src/api/client';
+import { type Book } from '@readlist/contracts';
+
+describe('App Component Integration & Gate Tests', () => {
+  const initialBooks: Book[] = [
+    {
+      id: 'book-1',
+      title: 'The Hobbit',
+      author: 'J.R.R. Tolkien',
+      genre: 'Fantasy',
+      status: 'unread',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z'
+    },
+    {
+      id: 'book-2',
+      title: '1984',
+      author: 'George Orwell',
+      genre: 'Dystopian',
+      status: 'read',
+      createdAt: '2026-01-02T00:00:00.000Z',
+      updatedAt: '2026-01-02T00:00:00.000Z'
+    }
+  ];
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders application header, process flow, and initial books list', async () => {
+    vi.spyOn(apiClient, 'getBooks').mockResolvedValue(initialBooks);
+
+    render(<App />);
+
+    expect(screen.getByText('Track Books You Want to Read')).toBeInTheDocument();
+    expect(screen.getByText('Add Book')).toBeInTheDocument();
+    expect(screen.getByText('View List')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByText('The Hobbit')).toBeInTheDocument();
+      expect(screen.getByText('1984')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('George Orwell')).toBeInTheDocument();
+  });
+
+  it('adds a book and renders it in the list without page reload', async () => {
+    let booksState = [...initialBooks];
+    vi.spyOn(apiClient, 'getBooks').mockImplementation(async () => booksState);
+
+    const newBook: Book = {
+      id: 'book-3',
+      title: 'Brave New World',
+      author: 'Aldous Huxley',
+      genre: 'Sci-Fi',
+      status: 'unread',
+      createdAt: '2026-01-03T00:00:00.000Z',
+      updatedAt: '2026-01-03T00:00:00.000Z'
+    };
+
+    const createSpy = vi.spyOn(apiClient, 'createBook').mockImplementation(async (input) => {
+      booksState = [newBook, ...booksState];
+      return newBook;
+    });
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('The Hobbit')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText(/^title$/i), { target: { value: 'Brave New World' } });
+    fireEvent.change(screen.getByLabelText(/^author$/i), { target: { value: 'Aldous Huxley' } });
+    fireEvent.change(screen.getByLabelText(/^genre$/i), { target: { value: 'Sci-Fi' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /add to reading list/i }));
+
+    await waitFor(() => {
+      expect(createSpy).toHaveBeenCalledWith({
+        title: 'Brave New World',
+        author: 'Aldous Huxley',
+        genre: 'Sci-Fi',
+        status: 'unread'
+      });
+      expect(screen.getByText('Brave New World')).toBeInTheDocument();
+    });
+  });
+
+  it('toggles reading status between unread and read without page reload', async () => {
+    vi.spyOn(apiClient, 'getBooks').mockResolvedValue(initialBooks);
+    const updateSpy = vi.spyOn(apiClient, 'updateBookStatus').mockResolvedValue({
+      ...initialBooks[0],
+      status: 'read'
+    });
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('The Hobbit')).toBeInTheDocument();
+    });
+
+    const markAsReadButtons = screen.getAllByRole('button', { name: /mark as read/i });
+    expect(markAsReadButtons.length).toBeGreaterThan(0);
+
+    fireEvent.click(markAsReadButtons[0]);
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith('book-1', 'read');
+    });
+  });
+
+  it('filters books by search keyword without page reload', async () => {
+    const getBooksSpy = vi.spyOn(apiClient, 'getBooks').mockImplementation(async (filters) => {
+      if (filters?.search === 'Orwell') {
+        return [initialBooks[1]];
+      }
+      return initialBooks;
+    });
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('The Hobbit')).toBeInTheDocument();
+    });
+
+    const searchInput = screen.getByPlaceholderText(/search by title or author/i);
+    fireEvent.change(searchInput, { target: { value: 'Orwell' } });
+
+    await waitFor(() => {
+      expect(getBooksSpy).toHaveBeenCalledWith(expect.objectContaining({ search: 'Orwell' }));
+    });
+  });
+
+  it('deletes a book and updates the list without page reload', async () => {
+    let booksState = [...initialBooks];
+    vi.spyOn(apiClient, 'getBooks').mockImplementation(async () => booksState);
+    const deleteSpy = vi.spyOn(apiClient, 'deleteBook').mockImplementation(async (id) => {
+      booksState = booksState.filter((b) => b.id !== id);
+    });
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('The Hobbit')).toBeInTheDocument();
+    });
+
+    const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
+    fireEvent.click(deleteButtons[0]);
+
+    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(deleteSpy).toHaveBeenCalledWith('book-1');
+    });
+  });
+});

@@ -38,7 +38,7 @@ export const App: React.FC = () => {
       });
       setBooks(data);
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Could not load books';
+      const msg = err instanceof Error ? err.message : 'Could not load books';
       setErrorBanner(msg);
     } finally {
       setIsLoading(false);
@@ -61,7 +61,7 @@ export const App: React.FC = () => {
       await fetchFilteredBooks();
       return true;
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Failed to add book';
+      const msg = err instanceof Error ? err.message : 'Failed to add book';
       setErrorBanner(msg);
       return false;
     } finally {
@@ -85,7 +85,7 @@ export const App: React.FC = () => {
       await refreshAllBooks();
       await fetchFilteredBooks();
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Failed to update reading status';
+      const msg = err instanceof Error ? err.message : 'Failed to update reading status';
       setErrorBanner(msg);
       await fetchFilteredBooks();
     }
@@ -102,7 +102,7 @@ export const App: React.FC = () => {
       await refreshAllBooks();
       await fetchFilteredBooks();
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Failed to delete book';
+      const msg = err instanceof Error ? err.message : 'Failed to delete book';
       setErrorBanner(msg);
       await fetchFilteredBooks();
     }
