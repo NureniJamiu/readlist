@@ -5,7 +5,7 @@
   "main": "./dist/src/server.js",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc -w",
+    "dev": "tsc && node --watch dist/src/server.js",
     "start": "node dist/src/server.js",
     "test": "tsc && node --test dist/tests/**/*.test.js",
     "eval": "tsc && node dist/evals/api.eval.js"
