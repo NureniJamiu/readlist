@@ -61,7 +61,7 @@ describe('App Component Integration & Gate Tests', () => {
       updatedAt: '2026-01-03T00:00:00.000Z'
     };
 
-    const createSpy = vi.spyOn(apiClient, 'createBook').mockImplementation(async (input) => {
+    const createSpy = vi.spyOn(apiClient, 'createBook').mockImplementation(async () => {
       booksState = [newBook, ...booksState];
       return newBook;
     });

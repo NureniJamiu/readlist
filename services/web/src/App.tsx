@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { type Book, type CreateBookInput } from '@readlist/contracts';
-import { apiClient, ApiError } from './api/client';
+import { apiClient } from './api/client';
 import { Header } from './components/Header';
 import { ProcessFlow } from './components/ProcessFlow';
 import { ReadingStats } from './components/ReadingStats';
