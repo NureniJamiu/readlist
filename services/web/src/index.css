@@ -10,8 +10,8 @@
   --color-text-secondary: #3A2A30; /* Dark Plum */
   --color-white: #FFFFFF;
 
-  --font-heading: "Cambria", Georgia, serif;
-  --font-body: "Calibri", Candara, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-heading: "Poppins", sans-serif;
+  --font-body: "Poppins", sans-serif;
 
   --radius: 12px;
 }

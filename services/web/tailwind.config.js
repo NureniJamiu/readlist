@@ -26,8 +26,8 @@ export default {
         }
       },
       fontFamily: {
-        heading: ['Cambria', 'Georgia', 'serif'],
-        body: ['Calibri', 'Candara', 'Segoe UI', 'sans-serif']
+        heading: ['Poppins', 'sans-serif'],
+        body: ['Poppins', 'sans-serif']
       },
       borderRadius: {
         DEFAULT: '12px',

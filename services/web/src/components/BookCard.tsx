@@ -35,11 +35,10 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onToggleStatus, onDele
   return (
     <article
       data-testid={`book-card-${book.id}`}
-      className={`group relative rounded-xl border transition-all duration-200 flex flex-col ${
-        isRead
-          ? 'bg-cream/50 border-wine/15'
-          : 'bg-white border-wine/25 hover:border-wine/50 hover:shadow-md'
-      }`}
+      className={`group relative rounded-xl border transition-all duration-200 flex flex-col ${isRead
+        ? 'bg-cream/50 border-wine/15'
+        : 'bg-white border-wine/25 hover:border-wine/50 hover:shadow-md'
+        }`}
     >
       {/* Top accent bar */}
       <div
@@ -50,26 +49,24 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onToggleStatus, onDele
       <div className="p-5 flex flex-col flex-1">
         {/* Genre + Status row */}
         <div className="flex items-center justify-between gap-2 mb-3">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-rose-accent">
+          <span className="text-[11px] font-bold text-rose-accent">
             {book.genre}
           </span>
 
           {/* Status badge (display only) */}
           <span
-            className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-              isRead
-                ? 'bg-wine/10 text-wine'
-                : 'bg-cream text-plum-secondary'
-            }`}
+            className={`text-[11px] font-bold capitalize tracking-wider px-2 py-0.5 rounded-full ${isRead
+              ? 'bg-wine/10 text-wine'
+              : 'bg-cream text-plum-secondary'
+              }`}
           >
             {isRead ? '✓ Read' : 'Unread'}
           </span>
         </div>
 
         {/* Title */}
-        <h3 className={`font-heading text-lg font-bold leading-snug mb-1 ${
-          isRead ? 'text-wine/60' : 'text-wine'
-        }`}>
+        <h3 className={`font-heading text-lg font-bold leading-snug mb-1 ${isRead ? 'text-wine/60' : 'text-wine'
+          }`}>
           {book.title}
         </h3>
 
@@ -85,11 +82,10 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onToggleStatus, onDele
             type="button"
             onClick={handleToggle}
             disabled={isUpdating}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150 flex items-center gap-1.5 disabled:opacity-50 ${
-              isRead
-                ? 'bg-white border border-wine/30 text-plum hover:bg-cream-dark'
-                : 'bg-wine text-white hover:bg-wine-dark'
-            }`}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150 flex items-center gap-1.5 disabled:opacity-50 ${isRead
+              ? 'bg-white border border-wine/30 text-plum hover:bg-cream-dark'
+              : 'bg-wine text-white hover:bg-wine-dark'
+              }`}
           >
             {isUpdating ? (
               <>
