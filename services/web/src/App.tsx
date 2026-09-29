@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { type Book, type CreateBookInput } from '@readlist/contracts';
 import { apiClient } from './api/client';
 import { Header } from './components/Header';
-import { ProcessFlow } from './components/ProcessFlow';
 import { ReadingStats } from './components/ReadingStats';
 import { BookForm } from './components/BookForm';
 import { BookFilters } from './components/BookFilters';
@@ -16,6 +15,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   // Fetch all books (for accurate counts and calculations)
   const refreshAllBooks = useCallback(async () => {
@@ -116,54 +116,53 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Content wrapper with wine accent bar on the left per STYLE_GUIDE */}
-      <div className="border-l-4 border-wine min-h-screen">
-        <main className="max-w-6xl mx-auto px-4 py-8 md:py-12">
-          {errorBanner && (
-            <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-800 rounded-xl flex items-center justify-between text-sm">
-              <span>{errorBanner}</span>
-              <button
-                type="button"
-                onClick={() => setErrorBanner(null)}
-                className="font-bold ml-4 text-red-900"
-              >
-                ✕
-              </button>
-            </div>
-          )}
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+        {errorBanner && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl flex items-center justify-between text-sm">
+            <span>{errorBanner}</span>
+            <button
+              type="button"
+              onClick={() => setErrorBanner(null)}
+              className="font-bold ml-4 text-red-600 hover:text-red-800"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
-          <Header />
-          <ProcessFlow />
-          <ReadingStats total={counts.all} unread={counts.unread} read={counts.read} />
-          <BookForm onAddBook={handleAddBook} isSubmitting={isSubmitting} />
+        <Header onAddBookClick={() => setIsFormOpen(true)} bookCount={counts.all} />
+        <ReadingStats total={counts.all} unread={counts.unread} read={counts.read} />
 
-          <section aria-labelledby="reading-list-heading">
-            <div className="mb-2">
-              <span className="eyebrow-label text-rose-accent text-xs font-bold uppercase tracking-wider block mb-1">
-                Your Collection
-              </span>
-              <h2 id="reading-list-heading" className="font-heading text-2xl font-bold text-wine">
-                Reading Backlog
-              </h2>
-            </div>
+        <BookForm
+          onAddBook={handleAddBook}
+          isSubmitting={isSubmitting}
+          isOpen={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+        />
 
-            <BookFilters
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              selectedStatus={statusFilter}
-              onStatusChange={setStatusFilter}
-              counts={counts}
-            />
+        <section aria-labelledby="reading-list-heading">
+          <div className="mb-2">
+            <h2 id="reading-list-heading" className="font-heading text-xl font-bold text-wine">
+              Your Books
+            </h2>
+          </div>
 
-            <BookList
-              books={books}
-              isLoading={isLoading}
-              onToggleStatus={handleToggleStatus}
-              onDelete={handleDeleteBook}
-            />
-          </section>
-        </main>
-      </div>
+          <BookFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            selectedStatus={statusFilter}
+            onStatusChange={setStatusFilter}
+            counts={counts}
+          />
+
+          <BookList
+            books={books}
+            isLoading={isLoading}
+            onToggleStatus={handleToggleStatus}
+            onDelete={handleDeleteBook}
+          />
+        </section>
+      </main>
     </div>
   );
 };

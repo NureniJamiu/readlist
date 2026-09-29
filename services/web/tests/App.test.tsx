@@ -30,14 +30,13 @@ describe('App Component Integration & Gate Tests', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders application header, process flow, and initial books list', async () => {
+  it('renders application header and initial books list', async () => {
     vi.spyOn(apiClient, 'getBooks').mockResolvedValue(initialBooks);
 
     render(<App />);
 
-    expect(screen.getByText('Track Books You Want to Read')).toBeInTheDocument();
-    expect(screen.getByText('Add Book')).toBeInTheDocument();
-    expect(screen.getByText('View List')).toBeInTheDocument();
+    expect(screen.getByText('ReadList')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /add book/i })).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByText('The Hobbit')).toBeInTheDocument();
@@ -47,7 +46,7 @@ describe('App Component Integration & Gate Tests', () => {
     expect(screen.getByText('George Orwell')).toBeInTheDocument();
   });
 
-  it('adds a book and renders it in the list without page reload', async () => {
+  it('opens modal, adds a book, and renders it in the list without page reload', async () => {
     let booksState = [...initialBooks];
     vi.spyOn(apiClient, 'getBooks').mockImplementation(async () => booksState);
 
@@ -70,6 +69,14 @@ describe('App Component Integration & Gate Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText('The Hobbit')).toBeInTheDocument();
+    });
+
+    // Open the modal
+    fireEvent.click(screen.getByRole('button', { name: /add book/i }));
+
+    // Fill the form inside the modal
+    await waitFor(() => {
+      expect(screen.getByLabelText(/^title$/i)).toBeInTheDocument();
     });
 
     fireEvent.change(screen.getByLabelText(/^title$/i), { target: { value: 'Brave New World' } });
@@ -102,10 +109,11 @@ describe('App Component Integration & Gate Tests', () => {
       expect(screen.getByText('The Hobbit')).toBeInTheDocument();
     });
 
-    const markAsReadButtons = screen.getAllByRole('button', { name: /mark as read/i });
-    expect(markAsReadButtons.length).toBeGreaterThan(0);
+    // The status toggle buttons have title="Mark as read" for unread books
+    const markReadButtons = screen.getAllByTitle('Mark as read');
+    expect(markReadButtons.length).toBeGreaterThan(0);
 
-    fireEvent.click(markAsReadButtons[0]);
+    fireEvent.click(markReadButtons[0]);
 
     await waitFor(() => {
       expect(updateSpy).toHaveBeenCalledWith('book-1', 'read');
