@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import {
   validateCreateBook,
   validateUpdateStatus,
+  validateUpdateBook,
   validateFilterQuery,
   type ApiResponse,
   type Book
@@ -60,6 +61,38 @@ export function createBooksRouter(repo: BookRepository): Router {
       data: created
     });
   });
+
+  // Handler for PUT/PATCH /api/books/:id
+  const handleUpdateBook = (req: Request, res: Response<ApiResponse<Book>>) => {
+    const id = getParamId(req);
+    const validation = validateUpdateBook(req.body);
+    if (!validation.isValid || !validation.value) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: validation.errors
+      });
+    }
+
+    const updated = repo.update(id, validation.value);
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        error: 'Book not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: updated
+    });
+  };
+
+  // PUT /api/books/:id - update book details
+  router.put('/:id', handleUpdateBook);
+
+  // PATCH /api/books/:id - update book details
+  router.patch('/:id', handleUpdateBook);
 
   // PATCH /api/books/:id/status - update reading status
   router.patch('/:id/status', (req: Request, res: Response<ApiResponse<Book>>) => {

@@ -7,13 +7,15 @@ interface BookListProps {
   isLoading: boolean;
   onToggleStatus: (id: string, currentStatus: Book['status']) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onEdit: (book: Book) => void;
 }
 
 export const BookList: React.FC<BookListProps> = ({
   books,
   isLoading,
   onToggleStatus,
-  onDelete
+  onDelete,
+  onEdit
 }) => {
   if (isLoading) {
     return (
@@ -48,6 +50,7 @@ export const BookList: React.FC<BookListProps> = ({
           book={book}
           onToggleStatus={onToggleStatus}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </div>

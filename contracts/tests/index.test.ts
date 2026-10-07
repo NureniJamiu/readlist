@@ -3,6 +3,7 @@ import assert from 'node:assert';
 import {
   validateCreateBook,
   validateUpdateStatus,
+  validateUpdateBook,
   validateFilterQuery
 } from '../src/index.js';
 
@@ -87,6 +88,63 @@ describe('Contracts — validateUpdateStatus', () => {
     assert.strictEqual(validateUpdateStatus({ status: 'reading' }).isValid, false);
     assert.strictEqual(validateUpdateStatus({ status: 123 }).isValid, false);
     assert.strictEqual(validateUpdateStatus(null).isValid, false);
+  });
+});
+
+describe('Contracts — validateUpdateBook', () => {
+  test('validates full book update and trims values', () => {
+    const input = {
+      title: '  The Hobbit (Updated)  ',
+      author: ' J.R.R. Tolkien ',
+      genre: ' Epic Fantasy ',
+      status: 'read'
+    };
+    const res = validateUpdateBook(input);
+    assert.strictEqual(res.isValid, true);
+    assert.deepStrictEqual(res.value, {
+      title: 'The Hobbit (Updated)',
+      author: 'J.R.R. Tolkien',
+      genre: 'Epic Fantasy',
+      status: 'read'
+    });
+  });
+
+  test('validates partial book update', () => {
+    const input = { title: 'New Title Only' };
+    const res = validateUpdateBook(input);
+    assert.strictEqual(res.isValid, true);
+    assert.deepStrictEqual(res.value, { title: 'New Title Only' });
+  });
+
+  test('rejects empty strings for fields when provided', () => {
+    const res = validateUpdateBook({ title: '   ', author: '' });
+    assert.strictEqual(res.isValid, false);
+    assert.ok(res.errors.title);
+    assert.ok(res.errors.author);
+  });
+
+  test('rejects update with no fields provided', () => {
+    const res = validateUpdateBook({});
+    assert.strictEqual(res.isValid, false);
+    assert.ok(res.errors._general);
+  });
+
+  test('rejects invalid status in update', () => {
+    const res = validateUpdateBook({ status: 'invalid-status' });
+    assert.strictEqual(res.isValid, false);
+    assert.ok(res.errors.status);
+  });
+
+  test('rejects fields exceeding length constraints', () => {
+    const res = validateUpdateBook({
+      title: 'X'.repeat(201),
+      author: 'Y'.repeat(151),
+      genre: 'Z'.repeat(101)
+    });
+    assert.strictEqual(res.isValid, false);
+    assert.ok(res.errors.title);
+    assert.ok(res.errors.author);
+    assert.ok(res.errors.genre);
   });
 });
 

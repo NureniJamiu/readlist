@@ -76,6 +76,45 @@ describe('ApiClient', () => {
     expect(result.status).toBe('read');
   });
 
+  it('updates a book with PUT request', async () => {
+    const updatedBook = {
+      id: '1',
+      title: 'Updated Title',
+      author: 'Updated Author',
+      genre: 'Non-Fiction',
+      status: 'read' as const,
+      createdAt: '',
+      updatedAt: ''
+    };
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true, data: updatedBook })
+    } as Response);
+
+    const result = await client.updateBook('1', {
+      title: 'Updated Title',
+      author: 'Updated Author',
+      genre: 'Non-Fiction',
+      status: 'read'
+    });
+
+    expect(result).toEqual(updatedBook);
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://localhost:3001/api/books/1',
+      expect.objectContaining({
+        method: 'PUT',
+        body: JSON.stringify({
+          title: 'Updated Title',
+          author: 'Updated Author',
+          genre: 'Non-Fiction',
+          status: 'read'
+        })
+      })
+    );
+  });
+
   it('deletes a book', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,

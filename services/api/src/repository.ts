@@ -3,7 +3,8 @@ import crypto from 'node:crypto';
 import {
   type Book,
   type ReadingStatus,
-  type BookFilterQuery
+  type BookFilterQuery,
+  type UpdateBookInput
 } from '@readlist/contracts';
 import { getDatabase } from './db.js';
 
@@ -101,6 +102,49 @@ export class BookRepository {
     if (result.changes === 0) {
       return null;
     }
+
+    return this.findById(id);
+  }
+
+  update(id: string, data: UpdateBookInput): Book | null {
+    const existing = this.findById(id);
+    if (!existing) {
+      return null;
+    }
+
+    const updates: string[] = [];
+    const params: unknown[] = [];
+
+    if (data.title !== undefined) {
+      updates.push('title = ?');
+      params.push(data.title);
+    }
+    if (data.author !== undefined) {
+      updates.push('author = ?');
+      params.push(data.author);
+    }
+    if (data.genre !== undefined) {
+      updates.push('genre = ?');
+      params.push(data.genre);
+    }
+    if (data.status !== undefined) {
+      updates.push('status = ?');
+      params.push(data.status);
+    }
+
+    if (updates.length === 0) {
+      return existing;
+    }
+
+    const now = new Date().toISOString();
+    updates.push('updated_at = ?');
+    params.push(now);
+
+    params.push(id);
+
+    const query = `UPDATE books SET ${updates.join(', ')} WHERE id = ?`;
+    const stmt = this.db.prepare(query);
+    stmt.run(...params);
 
     return this.findById(id);
   }

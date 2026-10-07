@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { type Book, type CreateBookInput } from '@readlist/contracts';
+import { type Book, type CreateBookInput, type UpdateBookInput } from '@readlist/contracts';
 import { apiClient } from './api/client';
 import { Header } from './components/Header';
 import { ReadingStats } from './components/ReadingStats';
@@ -16,6 +16,7 @@ export const App: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
 
   // Fetch all books (for accurate counts and calculations)
   const refreshAllBooks = useCallback(async () => {
@@ -67,6 +68,48 @@ export const App: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Edit book without page reload
+  const handleEditBook = async (id: string, input: UpdateBookInput): Promise<boolean> => {
+    setIsSubmitting(true);
+    setErrorBanner(null);
+    try {
+      // Optimistic update in place
+      setBooks((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, ...input, updatedAt: new Date().toISOString() } : b))
+      );
+      setAllBooks((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, ...input, updatedAt: new Date().toISOString() } : b))
+      );
+
+      await apiClient.updateBook(id, input);
+      await refreshAllBooks();
+      await fetchFilteredBooks();
+      return true;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to update book';
+      setErrorBanner(msg);
+      await fetchFilteredBooks();
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleOpenAdd = () => {
+    setEditingBook(null);
+    setIsFormOpen(true);
+  };
+
+  const handleOpenEdit = (book: Book) => {
+    setEditingBook(book);
+    setIsFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditingBook(null);
   };
 
   // Toggle status between 'unread' and 'read' without page reload
@@ -130,14 +173,16 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        <Header onAddBookClick={() => setIsFormOpen(true)} bookCount={counts.all} />
+        <Header onAddBookClick={handleOpenAdd} bookCount={counts.all} />
         <ReadingStats total={counts.all} unread={counts.unread} read={counts.read} />
 
         <BookForm
           onAddBook={handleAddBook}
+          onEditBook={handleEditBook}
+          editingBook={editingBook}
           isSubmitting={isSubmitting}
           isOpen={isFormOpen}
-          onClose={() => setIsFormOpen(false)}
+          onClose={handleCloseForm}
         />
 
         <section aria-labelledby="reading-list-heading">
@@ -160,6 +205,7 @@ export const App: React.FC = () => {
             isLoading={isLoading}
             onToggleStatus={handleToggleStatus}
             onDelete={handleDeleteBook}
+            onEdit={handleOpenEdit}
           />
         </section>
       </main>

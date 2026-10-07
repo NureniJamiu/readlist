@@ -25,6 +25,13 @@ export interface UpdateBookStatusInput {
   status: ReadingStatus;
 }
 
+export interface UpdateBookInput {
+  title?: string;
+  author?: string;
+  genre?: string;
+  status?: ReadingStatus;
+}
+
 export interface BookFilterQuery {
   search?: string;
   status?: 'all' | ReadingStatus;
@@ -130,6 +137,83 @@ export function validateUpdateStatus(input: unknown): ValidationResult<UpdateBoo
     isValid,
     errors,
     value: isValid ? { status: raw.status as ReadingStatus } : undefined
+  };
+}
+
+/**
+ * Validates payload for updating a book.
+ * At least one valid field (title, author, genre, or status) must be provided.
+ */
+export function validateUpdateBook(input: unknown): ValidationResult<UpdateBookInput> {
+  const errors: Record<string, string[]> = {};
+
+  if (!input || typeof input !== 'object') {
+    return {
+      isValid: false,
+      errors: { _general: ['Input must be a valid object'] }
+    };
+  }
+
+  const raw = input as Record<string, unknown>;
+  const value: UpdateBookInput = {};
+  let fieldsProvided = 0;
+
+  // Title validation
+  if (raw.title !== undefined) {
+    fieldsProvided++;
+    if (typeof raw.title !== 'string' || raw.title.trim().length === 0) {
+      errors.title = ['Title cannot be empty'];
+    } else if (raw.title.trim().length > 200) {
+      errors.title = ['Title must be less than 200 characters'];
+    } else {
+      value.title = raw.title.trim();
+    }
+  }
+
+  // Author validation
+  if (raw.author !== undefined) {
+    fieldsProvided++;
+    if (typeof raw.author !== 'string' || raw.author.trim().length === 0) {
+      errors.author = ['Author cannot be empty'];
+    } else if (raw.author.trim().length > 150) {
+      errors.author = ['Author must be less than 150 characters'];
+    } else {
+      value.author = raw.author.trim();
+    }
+  }
+
+  // Genre validation
+  if (raw.genre !== undefined) {
+    fieldsProvided++;
+    if (typeof raw.genre !== 'string' || raw.genre.trim().length === 0) {
+      errors.genre = ['Genre cannot be empty'];
+    } else if (raw.genre.trim().length > 100) {
+      errors.genre = ['Genre must be less than 100 characters'];
+    } else {
+      value.genre = raw.genre.trim();
+    }
+  }
+
+  // Status validation
+  if (raw.status !== undefined) {
+    fieldsProvided++;
+    if (raw.status !== 'unread' && raw.status !== 'read') {
+      errors.status = ["Status must be either 'unread' or 'read'"];
+    } else {
+      value.status = raw.status as ReadingStatus;
+    }
+  }
+
+  if (fieldsProvided === 0) {
+    errors._general = ['At least one field must be provided to update'];
+  }
+
+  const isValid = Object.keys(errors).length === 0;
+
+  return {
+    isValid,
+    errors,
+    value: isValid ? value : undefined
   };
 }
 

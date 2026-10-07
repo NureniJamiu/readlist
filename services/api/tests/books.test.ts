@@ -108,6 +108,49 @@ describe('Books API REST Endpoints', () => {
     assert.strictEqual(notFoundRes.status, 404);
   });
 
+  test('PUT /api/books/:id updates book details', async () => {
+    const book = repo.create({ title: 'Before Edit', author: 'Old Author', genre: 'Fiction', status: 'unread' });
+
+    const res = await request(app).put(`/api/books/${book.id}`).send({
+      title: 'After Edit',
+      author: 'New Author',
+      genre: 'Non-Fiction',
+      status: 'read'
+    });
+
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.body.success, true);
+    assert.strictEqual(res.body.data.title, 'After Edit');
+    assert.strictEqual(res.body.data.author, 'New Author');
+    assert.strictEqual(res.body.data.genre, 'Non-Fiction');
+    assert.strictEqual(res.body.data.status, 'read');
+
+    // 400 on invalid payload
+    const invalidRes = await request(app).put(`/api/books/${book.id}`).send({
+      title: ''
+    });
+    assert.strictEqual(invalidRes.status, 400);
+
+    // 404 on missing book
+    const notFoundRes = await request(app).put('/api/books/non-existent-id').send({
+      title: 'Valid Title'
+    });
+    assert.strictEqual(notFoundRes.status, 404);
+  });
+
+  test('PATCH /api/books/:id partially updates book details', async () => {
+    const book = repo.create({ title: 'Original Book', author: 'Same Author', genre: 'Sci-Fi', status: 'unread' });
+
+    const res = await request(app).patch(`/api/books/${book.id}`).send({
+      title: 'Patched Title'
+    });
+
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.body.success, true);
+    assert.strictEqual(res.body.data.title, 'Patched Title');
+    assert.strictEqual(res.body.data.author, 'Same Author');
+  });
+
   test('DELETE /api/books/:id deletes book or returns 404', async () => {
     const book = repo.create({ title: 'To Remove', author: 'Author', genre: 'Fiction', status: 'unread' });
 

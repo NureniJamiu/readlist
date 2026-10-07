@@ -165,4 +165,58 @@ describe('App Component Integration & Gate Tests', () => {
       expect(deleteSpy).toHaveBeenCalledWith('book-1');
     });
   });
+
+  it('renders edit icon on book cards, opens edit modal, and updates book without page reload', async () => {
+    let booksState = [...initialBooks];
+    vi.spyOn(apiClient, 'getBooks').mockImplementation(async () => booksState);
+    const updatedBook: Book = {
+      ...initialBooks[0],
+      title: 'The Hobbit: Illustrated Edition',
+      genre: 'Classic Fantasy'
+    };
+
+    const updateSpy = vi.spyOn(apiClient, 'updateBook').mockImplementation(async (id, input) => {
+      booksState = booksState.map((b) => (b.id === id ? { ...b, ...input } : b));
+      return { ...updatedBook, ...input };
+    });
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('The Hobbit')).toBeInTheDocument();
+    });
+
+    // Verify edit icon button is present
+    const editButton = screen.getByRole('button', { name: /edit the hobbit/i });
+    expect(editButton).toBeInTheDocument();
+
+    // Click edit icon button
+    fireEvent.click(editButton);
+
+    // Modal opens in Edit mode
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /edit book/i })).toBeInTheDocument();
+    });
+
+    const titleInput = screen.getByLabelText(/^title$/i) as HTMLInputElement;
+    expect(titleInput.value).toBe('The Hobbit');
+
+    // Change title and genre
+    fireEvent.change(titleInput, { target: { value: 'The Hobbit: Illustrated Edition' } });
+    fireEvent.change(screen.getByLabelText(/^genre$/i), { target: { value: 'Classic Fantasy' } });
+
+    // Submit changes
+    const saveButton = screen.getByRole('button', { name: /save changes/i });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith('book-1', {
+        title: 'The Hobbit: Illustrated Edition',
+        author: 'J.R.R. Tolkien',
+        genre: 'Classic Fantasy',
+        status: 'unread'
+      });
+      expect(screen.getByText('The Hobbit: Illustrated Edition')).toBeInTheDocument();
+    });
+  });
 });

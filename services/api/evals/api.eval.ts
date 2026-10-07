@@ -85,6 +85,30 @@ async function runApiEval() {
       details: 'Error adheres to { success: false, error: string, details: object }'
     });
 
+    // Check 6: Update Book latency and data integrity
+    const updateTarget = repo.findAll()[0];
+    const updateStart = performance.now();
+    const updateRes = await request(app)
+      .put(`/api/books/${updateTarget.id}`)
+      .send({
+        title: 'Eval Updated Title',
+        author: 'Eval Updated Author',
+        genre: 'Updated Genre',
+        status: 'read'
+      });
+    const updateDuration = performance.now() - updateStart;
+    const updatePassed =
+      updateRes.status === 200 &&
+      updateRes.body.data.title === 'Eval Updated Title' &&
+      updateRes.body.data.author === 'Eval Updated Author' &&
+      updateDuration < 50;
+
+    metrics.push({
+      name: 'Book Edit & Update Operation Latency',
+      passed: updatePassed,
+      details: `Book updated in ${updateDuration.toFixed(2)}ms (target <50ms) with verified persistence`
+    });
+
   } finally {
     db.close();
   }

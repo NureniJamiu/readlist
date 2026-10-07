@@ -2,6 +2,7 @@ import {
   type Book,
   type CreateBookInput,
   type UpdateBookStatusInput,
+  type UpdateBookInput,
   type BookFilterQuery,
   type ApiResponse
 } from '@readlist/contracts';
@@ -80,6 +81,13 @@ export class ApiClient {
   async createBook(input: CreateBookInput): Promise<Book> {
     return this.request<Book>('/api/books', {
       method: 'POST',
+      body: JSON.stringify(input)
+    });
+  }
+
+  async updateBook(id: string, input: UpdateBookInput): Promise<Book> {
+    return this.request<Book>(`/api/books/${encodeURIComponent(id)}`, {
+      method: 'PUT',
       body: JSON.stringify(input)
     });
   }

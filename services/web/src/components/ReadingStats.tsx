@@ -35,7 +35,7 @@ export const ReadingStats: React.FC<ReadingStatsProps> = ({ total, unread, read 
       {/* Wine Card: Completed / Read */}
       <div className="bg-wine text-white rounded-xl p-6 flex flex-col justify-between">
         <div>
-          <span className="text-rose-accent text-xs font-bold uppercase tracking-wider block mb-1">
+          <span className="eyebrow-label text-rose-accent text-xs font-bold uppercase tracking-wider block mb-1">
             Progress
           </span>
           <h2 className="font-heading text-xl font-bold text-white mb-2">

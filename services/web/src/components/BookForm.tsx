@@ -1,14 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { type CreateBookInput, type ReadingStatus } from '@readlist/contracts';
+import { type Book, type CreateBookInput, type UpdateBookInput, type ReadingStatus } from '@readlist/contracts';
 
 interface BookFormProps {
   onAddBook: (book: CreateBookInput) => Promise<boolean>;
+  onEditBook?: (id: string, book: UpdateBookInput) => Promise<boolean>;
+  editingBook?: Book | null;
   isSubmitting: boolean;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const BookForm: React.FC<BookFormProps> = ({ onAddBook, isSubmitting, isOpen, onClose }) => {
+export const BookForm: React.FC<BookFormProps> = ({
+  onAddBook,
+  onEditBook,
+  editingBook,
+  isSubmitting,
+  isOpen,
+  onClose
+}) => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [genre, setGenre] = useState('');
@@ -18,14 +27,30 @@ export const BookForm: React.FC<BookFormProps> = ({ onAddBook, isSubmitting, isO
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus title input when modal opens
+  const isEditing = Boolean(editingBook);
+
+  // Sync form state when modal opens or editingBook changes
   useEffect(() => {
     if (isOpen) {
-      // Small delay so the DOM has rendered
+      if (editingBook) {
+        setTitle(editingBook.title);
+        setAuthor(editingBook.author);
+        setGenre(editingBook.genre);
+        setStatus(editingBook.status);
+      } else {
+        setTitle('');
+        setAuthor('');
+        setGenre('');
+        setStatus('unread');
+      }
+      setClientErrors({});
+      setIsSuccessMessageVisible(false);
+
+      // Focus title input
       const timer = setTimeout(() => titleInputRef.current?.focus(), 50);
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, editingBook]);
 
   // Close on Escape key
   useEffect(() => {
@@ -90,20 +115,29 @@ export const BookForm: React.FC<BookFormProps> = ({ onAddBook, isSubmitting, isO
     e.preventDefault();
     if (!validate()) return;
 
-    const success = await onAddBook({
-      title: title.trim(),
-      author: author.trim(),
-      genre: genre.trim(),
-      status
-    });
+    let success = false;
+    if (isEditing && editingBook && onEditBook) {
+      success = await onEditBook(editingBook.id, {
+        title: title.trim(),
+        author: author.trim(),
+        genre: genre.trim(),
+        status
+      });
+    } else {
+      success = await onAddBook({
+        title: title.trim(),
+        author: author.trim(),
+        genre: genre.trim(),
+        status
+      });
+    }
 
     if (success) {
-      resetForm();
       setIsSuccessMessageVisible(true);
       setTimeout(() => {
         setIsSuccessMessageVisible(false);
         handleClose();
-      }, 1200);
+      }, 1000);
     }
   };
 
@@ -114,7 +148,7 @@ export const BookForm: React.FC<BookFormProps> = ({ onAddBook, isSubmitting, isO
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Add a book"
+      aria-label={isEditing ? 'Edit book' : 'Add a book'}
     >
       {/* Backdrop */}
       <div
@@ -130,7 +164,9 @@ export const BookForm: React.FC<BookFormProps> = ({ onAddBook, isSubmitting, isO
       >
         {/* Header bar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-wine/10">
-          <h2 className="font-heading text-xl font-bold text-wine">Add a Book</h2>
+          <h2 className="font-heading text-xl font-bold text-wine">
+            {isEditing ? 'Edit Book' : 'Add a Book'}
+          </h2>
           <button
             type="button"
             onClick={handleClose}
@@ -152,7 +188,7 @@ export const BookForm: React.FC<BookFormProps> = ({ onAddBook, isSubmitting, isO
                 <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              Book added to your list!
+              {isEditing ? 'Book updated successfully!' : 'Book added to your list!'}
             </div>
           )}
 
@@ -263,10 +299,10 @@ export const BookForm: React.FC<BookFormProps> = ({ onAddBook, isSubmitting, isO
                 {isSubmitting ? (
                   <>
                     <span className="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Adding...
+                    {isEditing ? 'Saving...' : 'Adding...'}
                   </>
                 ) : (
-                  'Add to Reading List'
+                  isEditing ? 'Save Changes' : 'Add to Reading List'
                 )}
               </button>
             </div>

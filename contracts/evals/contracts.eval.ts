@@ -3,7 +3,7 @@
  * Verifies domain boundary invariants, edge cases, and fuzz testing.
  */
 
-import { validateCreateBook, validateUpdateStatus, validateFilterQuery } from '../src/index.js';
+import { validateCreateBook, validateUpdateStatus, validateUpdateBook, validateFilterQuery } from '../src/index.js';
 
 interface EvalResult {
   suite: string;
@@ -72,6 +72,21 @@ function runContractEval(): EvalResult {
       `Filter query normalization for ${JSON.stringify(perm.input)}`,
       res.status === perm.expectedStatus
     );
+  }
+
+  // Invariant 4: Update book payload invariants
+  const updateCases = [
+    { input: { title: 'Updated Title' }, expectedValid: true, name: 'Single field update' },
+    { input: { title: 'T', author: 'A', genre: 'G', status: 'read' }, expectedValid: true, name: 'Full fields update' },
+    { input: {}, expectedValid: false, name: 'Empty update payload' },
+    { input: { title: '   ' }, expectedValid: false, name: 'Blank title in update' },
+    { input: { status: 'reading' }, expectedValid: false, name: 'Invalid status in update' },
+    { input: null, expectedValid: false, name: 'Null payload in update' }
+  ];
+
+  for (const u of updateCases) {
+    const res = validateUpdateBook(u.input);
+    check(`Update contract: ${u.name}`, res.isValid === u.expectedValid);
   }
 
   const durationMs = performance.now() - start;

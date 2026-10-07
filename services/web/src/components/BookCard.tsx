@@ -5,9 +5,10 @@ interface BookCardProps {
   book: Book;
   onToggleStatus: (id: string, currentStatus: Book['status']) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onEdit: (book: Book) => void;
 }
 
-export const BookCard: React.FC<BookCardProps> = ({ book, onToggleStatus, onDelete }) => {
+export const BookCard: React.FC<BookCardProps> = ({ book, onToggleStatus, onDelete, onEdit }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -99,38 +100,64 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onToggleStatus, onDele
             )}
           </button>
 
-          {/* Delete */}
-          {showDeleteConfirm ? (
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="text-xs bg-red-600 hover:bg-red-700 text-white font-semibold px-2.5 py-1 rounded-md transition-colors"
-              >
-                {isDeleting ? 'Removing...' : 'Confirm'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(false)}
-                className="text-xs text-plum-secondary hover:text-plum px-2 py-1 rounded-md transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
+          {/* Action icons: Edit and Delete */}
+          <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => setShowDeleteConfirm(true)}
-              className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-md"
-              title="Remove book"
+              onClick={() => onEdit(book)}
+              className="text-plum-secondary/70 hover:text-wine transition-colors p-1 rounded-md"
+              title="Edit book"
+              aria-label={`Edit ${book.title}`}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M2 4h12M5.333 4V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4h9.334z" />
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M11.333 2A1.886 1.886 0 0 1 14 4.667l-9 9-3.667 1 1-3.667 9-9z" />
               </svg>
-              <span className="sr-only">Delete</span>
+              <span className="sr-only">Edit</span>
             </button>
-          )}
+
+            {/* Delete */}
+            {showDeleteConfirm ? (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="text-xs bg-red-600 hover:bg-red-700 text-white font-semibold px-2.5 py-1 rounded-md transition-colors"
+                >
+                  {isDeleting ? 'Removing...' : 'Confirm'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="text-xs text-plum-secondary hover:text-plum px-2 py-1 rounded-md transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-md"
+                title="Remove book"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M2 4h12M5.333 4V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4h9.334z" />
+                </svg>
+                <span className="sr-only">Delete</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </article>

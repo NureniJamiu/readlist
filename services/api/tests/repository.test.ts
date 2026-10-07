@@ -92,6 +92,40 @@ describe('BookRepository Gate Tests', () => {
     assert.strictEqual(updated, null);
   });
 
+  test('updates book details and updates updatedAt timestamp', () => {
+    const book = repo.create({ title: 'Original Title', author: 'Original Author', genre: 'Sci-Fi', status: 'unread' });
+
+    const updated = repo.update(book.id, {
+      title: 'Edited Title',
+      author: 'Edited Author',
+      genre: 'Speculative Fiction',
+      status: 'read'
+    });
+
+    assert.ok(updated);
+    assert.strictEqual(updated.title, 'Edited Title');
+    assert.strictEqual(updated.author, 'Edited Author');
+    assert.strictEqual(updated.genre, 'Speculative Fiction');
+    assert.strictEqual(updated.status, 'read');
+    assert.ok(updated.updatedAt);
+  });
+
+  test('updates partial book fields', () => {
+    const book = repo.create({ title: 'Partially Edited', author: 'Author', genre: 'History', status: 'unread' });
+
+    const updated = repo.update(book.id, { title: 'Updated Title Only' });
+    assert.ok(updated);
+    assert.strictEqual(updated.title, 'Updated Title Only');
+    assert.strictEqual(updated.author, 'Author');
+    assert.strictEqual(updated.genre, 'History');
+    assert.strictEqual(updated.status, 'unread');
+  });
+
+  test('returns null when updating non-existent book', () => {
+    const updated = repo.update('fake-id', { title: 'New' });
+    assert.strictEqual(updated, null);
+  });
+
   test('deletes a book by id and returns boolean status', () => {
     const book = repo.create({ title: 'To Delete', author: 'Author', genre: 'Mystery', status: 'unread' });
 
