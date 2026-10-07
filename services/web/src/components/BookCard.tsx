@@ -105,13 +105,13 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onToggleStatus, onDele
             <button
               type="button"
               onClick={() => onEdit(book)}
-              className="text-plum-secondary/70 hover:text-wine transition-colors p-1 rounded-md"
+              className="text-wine hover:text-wine-dark transition-colors p-1 rounded-md"
               title="Edit book"
               aria-label={`Edit ${book.title}`}
             >
               <svg
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 viewBox="0 0 16 16"
                 fill="none"
                 stroke="currentColor"
@@ -151,7 +151,17 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onToggleStatus, onDele
                 className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-md"
                 title="Remove book"
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M2 4h12M5.333 4V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4h9.334z" />
                 </svg>
                 <span className="sr-only">Delete</span>

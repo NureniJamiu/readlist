@@ -76,9 +76,19 @@ describe('Web UI Quality & Design System Evaluation Suite', () => {
       expect(screen.getByText('Domain-Driven Design')).toBeInTheDocument();
     });
 
-    // Check edit button presence and accessibility
+    // Check edit button presence and default color (matching hover state) and smaller icon size
     const editBtn = screen.getByRole('button', { name: /edit domain-driven design/i });
     expect(editBtn).toBeInTheDocument();
+    expect(editBtn).toHaveClass('text-wine');
+
+    const editSvg = editBtn.querySelector('svg');
+    expect(editSvg).toHaveAttribute('width', '14');
+    expect(editSvg).toHaveAttribute('height', '14');
+
+    const deleteBtn = screen.getByRole('button', { name: /delete/i });
+    const deleteSvg = deleteBtn.querySelector('svg');
+    expect(deleteSvg).toHaveAttribute('width', '14');
+    expect(deleteSvg).toHaveAttribute('height', '14');
 
     // Open edit modal
     fireEvent.click(editBtn);
